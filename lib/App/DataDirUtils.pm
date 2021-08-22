@@ -50,9 +50,38 @@ _
             schema => 'bool*',
             cmdline_aliases => {l=>{}},
         },
+        skip_git => {
+            summary => 'Do not recurse into .git directory',
+            schema => 'bool*',
+            default => 1,
+        },
     },
+    examples => [
+        {
+            summary => 'How many datadirs are here?',
+            src => '[[prog]] . | wc -l',
+            src_plang => 'bash',
+            test => 0,
+            'x.doc.show_result' => 0,
+        },
+        {
+            summary => 'List all datadirs in all my external drives (show name as well as path)',
+            src => '[[prog]] /media/budi /media/ujang -l',
+            src_plang => 'bash',
+            test => 0,
+            'x.doc.show_result' => 0,
+        },
+        {
+            summary => 'Backup all my datadirs to Google Drive',
+            src => q{[[prog]] /media/budi /media/ujang -l | td map '"rclone copy -v -v $_->{abs_path} mygdrive:/backup/$_->{name}"' | bash},
+            src_plang => 'bash',
+            test => 0,
+            'x.doc.show_result' => 0,
+        },
+    ],
 };
 sub list_datadirs {
+    require Cwd;
     require File::Basename;
     require File::Find;
 
@@ -74,11 +103,23 @@ sub list_datadirs {
         {
             preprocess => sub {
                 if (-f ".tag-datadir") {
+                    #log_trace "TMP: dir=%s", $File::Find::dir;
+                    my $abs_path = Cwd::getcwd();
+                    defined $abs_path or do {
+                        log_fatal "Cant getcwd() in %s: %s", $File::Find::dir, $!;
+                        die;
+                    };
+                    log_trace "%s is a datadir", $abs_path;
                     push @rows, {
-                        name => File::Basename::basename(File::Find::dir),
+                        name => File::Basename::basename($abs_path),
                         path => $File::Find::dir,
+                        abs_path => $abs_path,
                     };
                     return ();
+                }
+                log_trace "Recursing into $File::Find::dir ...";
+                if ($args{skip_git}) {
+                    @_ = grep { $_ ne '.git' } @_;
                 }
                 return @_;
             },
@@ -89,10 +130,10 @@ sub list_datadirs {
     );
 
     unless ($args{detail}) {
-        @rows = map { $_->{name} } @rows;
+        @rows = map { $_->{abs_path} } @rows;
     }
 
-    [200, "OK", \@rows];
+    [200, "OK", \@rows, {'table.fields'=>[qw/name path abs_path/]}];
 }
 
 1;
