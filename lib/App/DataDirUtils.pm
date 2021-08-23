@@ -16,7 +16,7 @@ our %SPEC;
 
 $SPEC{':package'} = {
     v => 1.1,
-    summary => 'CLI utilities related to datadirs',
+    summary => '(DEPRECATED) CLI utilities related to datadirs',
 };
 
 our %argspecs_common = (
@@ -144,6 +144,12 @@ sub list_datadirs {
 See CLIs included in this distribution.
 
 
+=head1 DEPRECATION NOTICE
+
+This distribution is deprecated in favor of the more general
+L<App::TaggedDirUtils>.
+
+
 =head1 DESCRIPTION
 
 This distribution includes several utilities related to datadirs:
@@ -185,3 +191,8 @@ As an alternative, you can also create symlinks:
    media-2021b -> symlink to ../media/2021/media-2021b
    foo -> symlink to ../media/etc/foo
    bar -> symlink to ../media/etc/others/bar
+
+
+=head1 SEE ALSO
+
+L<App::TaggedDirUtils> is the more general utility.
