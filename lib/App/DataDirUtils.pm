@@ -156,3 +156,32 @@ F<.tag-datadir>. A datadir usually does not contain other datadirs.
 You can backup, rsync, or do whatever you like with a datadir, just like a
 normal filesystem directory. The utilities provided in this distribution help
 you handle datadirs.
+
+
+=head1 FAQ
+
+=head2 Why datadir?
+
+With tagged directories, you can put them in various places and not just on a
+single parent directory. For example:
+
+ media/
+   2020/
+     media-2020a/ -> a datadir
+     media-2020b/ -> a datadir
+   2021/
+     media-2021a/ -> a datadir
+   etc/
+     foo -> a datadir
+     others/
+       bar/ -> a datadir
+
+As an alternative, you can also create symlinks:
+
+ all-media/
+   media-2020a -> symlink to ../media/2020/media-2020a
+   media-2020b -> symlink to ../media/2020/media-2020b
+   media-2021a -> symlink to ../media/2021/media-2021a
+   media-2021b -> symlink to ../media/2021/media-2021b
+   foo -> symlink to ../media/etc/foo
+   bar -> symlink to ../media/etc/others/bar
